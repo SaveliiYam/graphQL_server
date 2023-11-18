@@ -11,9 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const (
+	timeRequest = 10 * time.Second
+)
+
 func usersCollection() *mongo.Collection {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://mongo:27017"))
+	ctx, _ := context.WithTimeout(context.Background(), timeRequest)
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
 	if err != nil {
 		log.Panic("Error when creating mongodb connection client", err)
 	}
@@ -27,7 +31,7 @@ func usersCollection() *mongo.Collection {
 }
 
 func usersResolver(_ graphql.ResolveParams) (interface{}, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), timeRequest)
 	collection := usersCollection()
 	result, err := collection.Find(ctx, bson.D{})
 	if err != nil {
@@ -47,7 +51,7 @@ func usersResolver(_ graphql.ResolveParams) (interface{}, error) {
 }
 
 func addUserResolver(p graphql.ResolveParams) (interface{}, error) {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, _ := context.WithTimeout(context.Background(), timeRequest)
 	collection := usersCollection()
 	id, err := collection.InsertOne(ctx, p.Args["input"])
 	if err != nil {
